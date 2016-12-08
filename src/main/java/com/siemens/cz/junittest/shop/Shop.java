@@ -6,25 +6,19 @@ import com.siemens.cz.junittest.shop.provider.BarcodeProvider;
 import com.siemens.cz.junittest.shop.provider.CsvProductProvider;
 import com.siemens.cz.junittest.shop.provider.IProductKeyProvider;
 import com.siemens.cz.junittest.shop.provider.IProductProvider;
+import com.siemens.cz.junittest.shop.writer.ConsoleClient;
 import com.siemens.cz.junittest.shop.writer.IProductWriter;
-import com.siemens.cz.junittest.shop.writer.UdpClient;
 
 public class Shop {
 
-	private IProductKeyProvider productKeyProvider;
 	private IProductProvider productProvider;
 	private IProductInfoFormatter infoFormatter;
 	private IProductWriter writer;
 
 	public Shop() {
-		productKeyProvider = new BarcodeProvider();
 		productProvider = new CsvProductProvider();
 		infoFormatter = new PriceFormatter();
-		writer = new UdpClient();
-	}
-
-	IProductKeyProvider getProductKeyReader() {
-		return productKeyProvider;
+		writer = new ConsoleClient();
 	}
 
 	IProductProvider getProductProvider() {
@@ -44,21 +38,29 @@ public class Shop {
 		return productProvider.findProductByKey(key);
 	}
 
-	public void sellOneItem() {
-		String key = getProductKeyReader().readProductKey();
+	public void onProductKeyRead(String key) {
 		if (key != null && !key.isEmpty()) {
-			Product p = getProduct(key);
-			if (p != null) {
-				String info = getProductInfoFormater().format(p);
-				getWriter().write(info);
-			}
+			sellItem(key.trim());
+		} else {
+			System.err.println("Provided key is empty");
+		}
+	}
+
+	private void sellItem(String key) {
+		Product p = getProduct(key);
+		if (p != null) {
+			String info = getProductInfoFormater().format(p);
+			getWriter().write(info);
+		} else {
+			System.err.println(String.format("Product with key '%s' is not found in catalog", key));
 		}
 	}
 
 	public static void main(String[] args) {
+		IProductKeyProvider keyProvider = new BarcodeProvider();
+		Shop shop = new Shop();
 
-		System.out.println("Hello World");
-
+		keyProvider.readProductKey(System.in, shop);
 	}
 
 }
