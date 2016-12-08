@@ -11,23 +11,27 @@ import org.mockito.Mockito;
 import com.siemens.cz.junittest.shop.formatters.IReceipeFormatter;
 import com.siemens.cz.junittest.shop.provider.BarcodeProvider;
 import com.siemens.cz.junittest.shop.provider.IProductKeyProvider;
+import com.siemens.cz.junittest.shop.writer.IProductWriter;
 
 public class ShopTest {
 
 	private static final String TEST_KEY = "123";
 	private static final Product TEST_PRODUCT = new Product(TEST_KEY, 123.3d, Tax.NO_TAX);
 	private Shop shop;
+	private IProductWriter writer;
 
 	@Before
 	public void setup() {
 		shop = Mockito.spy(new Shop());
+		writer = Mockito.spy(shop.getWriter());
+		shop.changeWriter(writer);
 	}
 
 	@Test
 	public void sell_one_item() {
 		shop.onProductKeyRead(TEST_KEY);
 
-		Mockito.verify(shop, Mockito.times(1)).getWriter();
+		Mockito.verify(writer, Mockito.times(1)).write(Mockito.anyString());
 	}
 
 	@Test
@@ -36,7 +40,7 @@ public class ShopTest {
 		shop.onProductKeyRead("456");
 		shop.onBillConfirmation();
 
-		Mockito.verify(shop, Mockito.times(3)).getWriter();
+		Mockito.verify(writer, Mockito.times(6)).write(Mockito.anyString());
 	}
 
 	@Test

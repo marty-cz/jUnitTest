@@ -82,4 +82,10 @@ public class Shop {
 		actualReceipe = new Receipe();
 	}
 
+	public void changeWriter(IProductWriter writer) {
+		if (writer != null) {
+			this.writer = writer;
+		}
+	}
+
 }
