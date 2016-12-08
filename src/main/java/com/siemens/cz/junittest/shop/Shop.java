@@ -1,31 +1,36 @@
 package com.siemens.cz.junittest.shop;
 
-import com.siemens.cz.junittest.shop.formatters.IProductInfoFormatter;
-import com.siemens.cz.junittest.shop.formatters.PriceFormatter;
+import com.siemens.cz.junittest.shop.formatters.IReceipeFormatter;
+import com.siemens.cz.junittest.shop.formatters.ReceipeFormatter;
 import com.siemens.cz.junittest.shop.provider.BarcodeProvider;
 import com.siemens.cz.junittest.shop.provider.CsvProductProvider;
 import com.siemens.cz.junittest.shop.provider.IProductKeyProvider;
 import com.siemens.cz.junittest.shop.provider.IProductProvider;
+import com.siemens.cz.junittest.shop.receipe.PriceCalculator;
+import com.siemens.cz.junittest.shop.receipe.Receipe;
 import com.siemens.cz.junittest.shop.writer.ConsoleClient;
 import com.siemens.cz.junittest.shop.writer.IProductWriter;
 
 public class Shop {
 
 	private IProductProvider productProvider;
-	private IProductInfoFormatter infoFormatter;
+	private IReceipeFormatter infoFormatter;
 	private IProductWriter writer;
+
+	private Receipe actualReceipe;
 
 	public Shop() {
 		productProvider = new CsvProductProvider();
-		infoFormatter = new PriceFormatter();
+		infoFormatter = new ReceipeFormatter();
 		writer = new ConsoleClient();
+		actualReceipe = new Receipe();
 	}
 
 	IProductProvider getProductProvider() {
 		return productProvider;
 	}
 
-	IProductInfoFormatter getProductInfoFormater() {
+	IReceipeFormatter getProductInfoFormater() {
 		return infoFormatter;
 	}
 
@@ -49,7 +54,8 @@ public class Shop {
 	private void sellItem(String key) {
 		Product p = getProduct(key);
 		if (p != null) {
-			String info = getProductInfoFormater().format(p);
+			actualReceipe.addProduct(p);
+			String info = getProductInfoFormater().formatProductInfo(p);
 			getWriter().write(info);
 		} else {
 			System.err.println(String.format("Product with key '%s' is not found in catalog", key));
@@ -61,6 +67,19 @@ public class Shop {
 		Shop shop = new Shop();
 
 		keyProvider.readProductKey(System.in, shop);
+	}
+
+	public void onBillConfirmation() {
+		PriceCalculator calculator = new PriceCalculator(actualReceipe);
+		ReceipeFormatter priceFormatter = new ReceipeFormatter();
+		IProductWriter writer = getWriter();
+
+		writer.writePriceToPayBeforeTax(priceFormatter.formatPrice(calculator.calculateSubTotal()));
+		writer.writeValueOfGstTax(priceFormatter.formatPrice(calculator.calculateSumOfGstTax()));
+		writer.writeValueOfPstTax(priceFormatter.formatPrice(calculator.calculateSumOfPstTax()));
+		writer.writePriceToPay(priceFormatter.formatPrice(calculator.calculateTotal()));
+
+		actualReceipe = new Receipe();
 	}
 
 }

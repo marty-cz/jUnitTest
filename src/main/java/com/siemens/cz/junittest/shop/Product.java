@@ -6,13 +6,25 @@ import lombok.ToString;
 public class Product {
 
 	private double price;
+	private Tax tax;
+	private String barcode;
 
-	public Product(double price) {
+	public Product(String barcode, double price, Tax taxType) {
+		this.barcode = barcode;
 		this.price = price;
+		this.tax = taxType;
 	}
 
 	public double getPrice() {
 		return this.price;
+	}
+
+	public Tax getTax() {
+		return tax;
+	}
+
+	public String getBarCode() {
+		return barcode;
 	}
 
 }

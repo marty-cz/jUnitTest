@@ -13,11 +13,13 @@ public class BarcodeProvider implements IProductKeyProvider {
 	public void readProductKey(InputStream source, Shop shop) {
 		try (Scanner in = new Scanner(source)) {
 			while (in.hasNext()) {
-				String key = in.nextLine();
-				if (isBarcodeValid(key)) {
-					shop.onProductKeyRead(key);
+				String input = in.nextLine();
+				if (isBarcodeValid(input)) {
+					shop.onProductKeyRead(input);
+				} else if (isBillConfirmation(input)) {
+					shop.onBillConfirmation();
 				} else {
-					System.err.println(String.format("Provided key '%s' is not valid barcode", key));
+					System.err.println(String.format("Provided key '%s' is not valid barcode", input));
 				}
 			}
 		}
@@ -25,6 +27,10 @@ public class BarcodeProvider implements IProductKeyProvider {
 
 	protected static boolean isBarcodeValid(String key) {
 		return StringUtils.isNotBlank(key) && StringUtils.isNumeric(key.trim());
+	}
+
+	protected static boolean isBillConfirmation(String s) {
+		return StringUtils.isNotBlank(s) && "D".equalsIgnoreCase(s.trim());
 	}
 
 }

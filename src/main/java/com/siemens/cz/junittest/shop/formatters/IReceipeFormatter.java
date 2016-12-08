@@ -2,7 +2,7 @@ package com.siemens.cz.junittest.shop.formatters;
 
 import com.siemens.cz.junittest.shop.Product;
 
-public interface IProductInfoFormatter {
+public interface IReceipeFormatter {
 
-	String format(Product p);
+	String formatProductInfo(Product p);
 }

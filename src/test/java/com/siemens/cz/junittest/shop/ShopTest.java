@@ -8,14 +8,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.siemens.cz.junittest.shop.formatters.IProductInfoFormatter;
+import com.siemens.cz.junittest.shop.formatters.IReceipeFormatter;
 import com.siemens.cz.junittest.shop.provider.BarcodeProvider;
 import com.siemens.cz.junittest.shop.provider.IProductKeyProvider;
 
 public class ShopTest {
 
 	private static final String TEST_KEY = "123";
-	private static final Product TEST_PRODUCT = new Product(123.3d);
+	private static final Product TEST_PRODUCT = new Product(TEST_KEY, 123.3d, Tax.NO_TAX);
 	private Shop shop;
 
 	@Before
@@ -25,7 +25,18 @@ public class ShopTest {
 
 	@Test
 	public void sell_one_item() {
-		// shop.sellOneItem();
+		shop.onProductKeyRead(TEST_KEY);
+
+		Mockito.verify(shop, Mockito.times(1)).getWriter();
+	}
+
+	@Test
+	public void sell_two_items() {
+		shop.onProductKeyRead(TEST_KEY);
+		shop.onProductKeyRead("456");
+		shop.onBillConfirmation();
+
+		Mockito.verify(shop, Mockito.times(3)).getWriter();
 	}
 
 	@Test
@@ -72,12 +83,13 @@ public class ShopTest {
 
 	@Test
 	public void format_of_product_info() {
-		IProductInfoFormatter formatter = shop.getProductInfoFormater();
+		IReceipeFormatter formatter = shop.getProductInfoFormater();
 		Product p = TEST_PRODUCT;
 
-		String res = formatter.format(p);
+		String res = formatter.formatProductInfo(p);
 
-		assertTrue("Product is not in EUR; " + p, res != null && res.startsWith("EUR "));
+		assertTrue("Product is not in correct format 'ID PRICE TAX' : " + p,
+				res != null && res.startsWith(TEST_KEY + " "));
 	}
 
 }
