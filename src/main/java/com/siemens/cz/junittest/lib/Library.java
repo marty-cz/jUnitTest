@@ -7,7 +7,9 @@ package com.siemens.cz.junittest.lib;
  * @author z003dv0s, @date 12/3/16 2:00 PM
  */
 public class Library {
+
 	public boolean someLibraryMethod() {
 		return true;
 	}
+
 }

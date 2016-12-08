@@ -11,10 +11,12 @@ import org.junit.Test;
  * @author z003dv0s, @date 12/3/16 2:00 PM
  */
 public class LibraryTest {
+
 	@Test
 	public void testSomeLibraryMethod() {
 		// mock();
 		Library classUnderTest = new Library();
 		assertTrue("someLibraryMethod should return 'true'", classUnderTest.someLibraryMethod());
 	}
+
 }

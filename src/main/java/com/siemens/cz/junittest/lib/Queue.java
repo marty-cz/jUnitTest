@@ -82,6 +82,17 @@ public class Queue<E> {
 	}
 
 	/**
+	 * @return The last element or null if queue is empty.
+	 */
+	public E lastValue() {
+		if (length() == 0) {
+			return null;
+		} else {
+			return circularArray[rearElementIndex];
+		}
+	}
+
+	/**
 	 * @return Number of elements in queue.
 	 */
 	public int length() {
